@@ -1,6 +1,6 @@
 
 
-class MarvelService {
+class MarvelServices {
     _apiBase = 'https://gateway.marvel.com:443/v1/public/';
     _apiKey = 'apikey=0372359462546775c76c6369c2508206';
 
@@ -29,8 +29,9 @@ class MarvelService {
             name: char.name,
             description: char.description,
             thumbnail: char.thumbnail.path + '.' + char.thumbnail.extension,
-            // homepage: char.ulrs[0].url,
-            // wiki: char.ulrs[1].url
+            comics: char.comics.items,
+            homepage: char.urls[0].url,
+            wiki: char.urls[1].url
         }           
     }
 
@@ -43,5 +44,5 @@ class MarvelService {
     }
 }
 
-export default MarvelService;
+export default MarvelServices;
 

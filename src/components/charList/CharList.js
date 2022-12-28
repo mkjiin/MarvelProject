@@ -1,16 +1,15 @@
-import MarvelService from '../../services/MarvelServices';
+import MarvelServices from '../../services/MarvelServices';
 import { Component } from 'react';
 import './charList.scss';
 import Spinner from '../spinner/Spinner';
 
 class CharList extends Component {
-
     state = {
         chars: [],
         loading: true
     }
 
-    marvelService = new MarvelService();
+    marvelService = new MarvelServices();
 
     componentDidMount() {
         this.updateChars()
@@ -35,7 +34,8 @@ class CharList extends Component {
             return (
                 <li 
                 className="char__item"
-                key={el.id}>
+                key={el.id}
+                onClick={() => this.props.onCharSelected(el.id)}>
                     <img src={el.thumbnail} alt={el.name} />
                     <div className="char__name">{el.name}</div>
                 </li>
@@ -48,6 +48,7 @@ class CharList extends Component {
             </ul>
         )
     }
+
 
 
     render() {
