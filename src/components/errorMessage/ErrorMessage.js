@@ -2,7 +2,9 @@ import img from './giphy.gif'
 
 const ErrorMessage = () => {
     return (
-        <img src={img} alt='error'/>
+        <div style={{textAlign: 'center'}}>
+            <img src={img} alt='error' />
+        </div>
     )
 }
 

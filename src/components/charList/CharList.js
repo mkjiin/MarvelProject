@@ -1,42 +1,57 @@
-import MarvelServices from '../../services/MarvelServices';
-import { Component } from 'react';
+import useMarvelService from '../../services/MarvelServices';
+import React, {useState, useEffect} from 'react';
 import './charList.scss';
 import Spinner from '../spinner/Spinner';
+import ErrorMessage from '../errorMessage/ErrorMessage';
 
-class CharList extends Component {
-    state = {
-        chars: [],
-        loading: true
+const CharList = (props) => {
+
+    const [chars, setChars] = useState([]);
+    const [newItemsLoading, setNewItemsLoading] = useState(false);
+    const [offset, setOffset] = useState(210);
+    const [charsEnded, SetCharsEnded] = useState(false);
+
+
+    const {loading, error, getAllCharacters} = useMarvelService();
+
+    useEffect(() => {
+        onRequest(offset, true)
+    }, [])
+
+    const onRequest = (offset, initial) => {
+        initial ? setNewItemsLoading(false) : setNewItemsLoading(true);
+        getAllCharacters(offset)
+            .then(onLoadedChars)    
+    };
+
+    
+
+    const onLoadedChars = (newChars) => {
+
+        let ended = false;
+        if (newChars.length < 9) {
+            ended = true;
+        }
+
+        setChars(chars => [...chars, ...newChars]);
+        setNewItemsLoading(false);
+        setOffset(offset => offset + 9);
+        SetCharsEnded(ended)
     }
 
-    marvelService = new MarvelServices();
-
-    componentDidMount() {
-        this.updateChars()
-    }
-
-    onLoadedChars = (chars) => {
-        this.setState({
-            chars,
-            loading: false
-        })
-    }
-
-
-    updateChars() {
-        this.marvelService
-            .getAllCharacters()
-            .then(this.onLoadedChars)
-    }
-
-    rednerItem(arr) {
+    const rednerItem = (arr) => {
         const items = arr.map(el => {
+
             return (
                 <li 
                 className="char__item"
                 key={el.id}
-                onClick={() => this.props.onCharSelected(el.id)}>
-                    <img src={el.thumbnail} alt={el.name} />
+                // ref={this.myRef}
+                tabIndex={0}
+                onClick={() => {
+                    props.onCharSelected(el.id);
+                  }}>
+                    <img src={el.thumbnail} alt={el.name} style={el.thumbnail === 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg' ? {'objectFit': 'initial'} : {'objectFit' : 'cover'}}/>
                     <div className="char__name">{el.name}</div>
                 </li>
             )
@@ -47,26 +62,27 @@ class CharList extends Component {
                 {items}
             </ul>
         )
-    }
+    }       
 
+    const items = rednerItem(chars)
 
-
-    render() {
-        const {chars, loading} = this.state;
-
-        const items = this.rednerItem(chars)
-
-        const content = loading ? <Spinner/> : items;
-        
-        return (
-            <div className="char__list">
-                {content}
-                <button className="button button__main button__long">
-                    <div className="inner">load more</div>
-                </button>
-            </div>
-        )
-    }
+    const spinner = loading && !newItemsLoading ? <Spinner/> : null;
+    const errorMessage = error ? <ErrorMessage/> : null
+    
+    return (
+        <div className="char__list">
+            {spinner}
+            {errorMessage}
+            {items}
+            <button 
+            className="button button__main button__long"
+            disabled={newItemsLoading}
+            style={{"display" : charsEnded ? 'none' : 'block'}}
+            onClick={() => onRequest(offset)}>
+                <div className="inner">load more</div>
+            </button>
+        </div>
+    )
 }
 
 export default CharList;
